@@ -11,20 +11,16 @@ from sklearn.metrics import mean_squared_error
 from math import sqrt
 import warnings
 warnings.filterwarnings('ignore')
-%matplotlib inline
+#%matplotlib inline
 
 # Reading and transforming the file
 epd = pd.read_csv('C:/Users/c8451269/PycharmProjects/CovidDataset/LiechtensteinSARIMA01/EPD.csv')
+epd.head(5)
+#activeCases = epd['confirmed'] - epd['deaths'] - epd['recovered']
 
-activeCases = epd['confirmed'] - epd['deaths'] - epd['recovered']
 
-
-rio.columns = ['Date','Temp']
-rio['Date'] = pd.to_datetime(rio['Date'])
-rio.reset_index(drop=True, inplace=True)
-rio.set_index('Date', inplace=True)
 
 #I'm going to consider the temperature just from 1900 until the end of 2012
-rio = rio.loc['1900':'2013-01-01']
-rio = rio.asfreq('M', method='bfill')
-rio.head()
+#rio = rio.loc['1900':'2013-01-01']
+#rio = rio.asfreq('M', method='bfill')
+#rio.head()
