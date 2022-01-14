@@ -35,3 +35,24 @@ print(epd.loc[filt])
 
 epd.set_index('date', inplace=True) #consider date as index, not the numbers anymore (for the rows)
 print(epd['2021-01':'2021-02']) #now that the dates are considered index we can do this and write it in this easy way
+
+plt.figure(figsize=(22,6))
+#sns.lineplot(x=epd.index, y=epd['activeCases'])
+plt.plot(epd['activeCases'])
+plt.title('active cases among the time')
+plt.savefig("C:/Users/c8451269/Desktop/SARIMA01.png")
+#plt.show()
+
+
+# making a pivot table (which shows the results monthly or yearly) might be needed, look at kaggle SARIMA tutorial
+# here we just make a test
+epd['day'] = epd.index.day
+epd['month'] = epd.index.month
+pivot = pd.pivot_table(epd, values='activeCases', index='day', columns='month', aggfunc='mean')
+pivot.plot(figsize=(20,6))
+plt.title('monthly active cases')
+plt.xlabel('days')
+plt.ylabel('active cases')
+#plt.xticks([x for x in range(1,30)])
+plt.legend()
+plt.savefig("C:/Users/c8451269/Desktop/SARIMA02.png")
