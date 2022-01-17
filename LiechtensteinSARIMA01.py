@@ -56,3 +56,26 @@ plt.ylabel('active cases')
 #plt.xticks([x for x in range(1,30)])
 plt.legend()
 plt.savefig("C:/Users/c8451269/Desktop/SARIMA02.png")
+
+plt.figure(figsize=(22,6))
+#sns.lineplot(x=epd.index, y=epd['activeCases'])
+plt.plot(epd['activeCases'])
+plt.title('active cases among the time')
+plt.savefig("C:/Users/c8451269/Desktop/SARIMA01.png")
+#plt.show()
+plt.clf()
+# Plot the data using bar() method
+
+X = list(epd.iloc[:, 0])
+Y = list(epd.iloc[:, 1])
+
+#plt.bar(epd['confirmed'], height=5, color='g')
+plt.bar(X, Y, color='g')
+plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
+plt.title("active Cases 02")
+plt.xlabel("time")
+plt.ylabel("Number")
+plt.savefig("C:/Users/c8451269/Desktop/SARIMA02.png")
+
+# making a pivot table (which shows the results monthly or yearly) might be needed, look at kaggle SARIMA tutorial
+# here we skip it (look at https://www.kaggle.com/leandrovrabelo/climate-change-forecast-sarima-model)
