@@ -64,18 +64,43 @@ plt.title('active cases among the time')
 plt.savefig("C:/Users/c8451269/Desktop/SARIMA01.png")
 #plt.show()
 plt.clf()
-# Plot the data using bar() method
+
+
+# Plot multiple graphs in one fig
+fig, ax1=plt.subplots()
 
 X = list(epd.iloc[:, 0])
-Y = list(epd.iloc[:, 1])
+Y1 = epd['activeCases']
+Y2 = epd['people_vaccinated']
+Y3 = epd['people_fully_vaccinated']
+Y4 = list(sar.iloc[:, 3])
 
-#plt.bar(epd['confirmed'], height=5, color='g')
-plt.bar(X, Y, color='g')
-plt.xticks(rotation = 45) # Rotates X-Axis Ticks by 45-degrees
-plt.title("active Cases 02")
-plt.xlabel("time")
-plt.ylabel("Number")
+ax1.bar(X, Y1, color='silver')
+
+ax1.set_xlabel('time (d)')
+ax1.set_ylabel('active cases', color='dimgray')
+ax1.tick_params(axis='y', labelcolor='dimgray')
+ax1.tick_params(axis='x',rotation = 45) # Rotates X-Axis Ticks by 45-degrees
+
+
+
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+ax2.plot(X, Y4, color='red')
+ax2.set_ylabel('SarsCov2 Titer (cpies/ml)', color='red')  # we already handled the x-label with ax1
+ax2.tick_params(axis='y', labelcolor='red')
+
+ax2.plot(X, Y2, color='green')
+ax2.plot(X, Y3, color='darkgreen')
+
+
+tick_spacing = 5
+ax2.xaxis.set_major_locator(ticker.MultipleLocator(tick_spacing))
+
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.savefig("C:/Users/c8451269/Desktop/SARIMA02.png")
+
+# making a pivot table (which shows the results monthly or yearly) might be needed, look at kaggle SARIMA tutorial
+# here we skip it (look at https://www.kaggle.com/leandrovrabelo/climate-change-forecast-sarima-model)
 
 # making a pivot table (which shows the results monthly or yearly) might be needed, look at kaggle SARIMA tutorial
 # here we skip it (look at https://www.kaggle.com/leandrovrabelo/climate-change-forecast-sarima-model)
