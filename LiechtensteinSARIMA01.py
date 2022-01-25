@@ -104,3 +104,62 @@ plt.savefig("C:/Users/c8451269/Desktop/SARIMA02.png")
 
 # making a pivot table (which shows the results monthly or yearly) might be needed, look at kaggle SARIMA tutorial
 # here we skip it (look at https://www.kaggle.com/leandrovrabelo/climate-change-forecast-sarima-model)
+
+# making a pivot table (which shows the results monthly or yearly) might be needed, look at kaggle SARIMA tutorial
+# here we skip it (look at https://www.kaggle.com/leandrovrabelo/climate-change-forecast-sarima-model)
+
+plt.clf()
+#plot mapping
+
+gmaps.configure(api_key='AI...')
+
+marker_locations = [
+    (9.501531, 47.214083)
+]
+
+figMap = gmaps.figure()
+markers = gmaps.marker_layer(marker_locations)
+figMap.add_layer(markers)
+
+#plot restriction policy (skiped)
+#plot Spearman correlation (skiped)
+
+# Mann-Kendall Trend Test
+
+print(mk.original_test(epd['activeCases']))
+pValue=mk.original_test(epd['activeCases'])
+#Mann_Kendall_Test(trend='no trend', h=False, p=0.422586268671707,                   z=0.80194241623, Tau=0.147058823529, s=20.0,                   var_s=561.33333333, slope=0.0384615384615, intercept=27.692307692)
+print(pValue[2])
+zt=epd['activeCases']
+print(zt[3], zt[4], zt[5])
+
+if pValue[2]>0.05:
+    zt=np.diff(zt)
+    print(zt[4])
+    print('hello5')
+else:
+    zt=np.diff(zt,n=12)
+
+# normality tests and plots
+fig, ax3=plt.subplots()
+
+ax3.hist(zt, bins='sturges', density=True, alpha=0.5, histtype='stepfilled', color='steelblue', edgecolor='black')
+# Density Plot and Histogram of all arrival delays
+#sns.displot(zt, hist=False, kde=True)
+ax3.set_xlabel('Prevelance')
+ax3.set_ylabel('density', color='black')
+plt.savefig("C:/Users/c8451269/Desktop/SARIMA03.png")
+
+
+# qq plot
+#fig, ax4=plt.subplots()
+sm.qqplot(zt, line ='r')
+ax3.set_xlabel('theoretical quantiles')
+ax3.set_ylabel('sample quantiles', color='dimgray')
+#perform Shapiro-Wilk test
+pValue=shapiro(zt)
+print('p.Value from shapira test is', pValue[1])
+plt.savefig("C:/Users/c8451269/Desktop/SARIMA04.png")
+
+#if(p.value<0.05)
+#boxcox parameters optimization
