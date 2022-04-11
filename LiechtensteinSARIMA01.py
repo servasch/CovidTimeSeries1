@@ -198,6 +198,26 @@ def main() -> None:
     #plot the distribution of the transformed data values
     plt.savefig("C:/Users/c8451269/Desktop/SARIMA06.png")
 
+    plt.clf()
+    acf_plot=plot_acf(bxc, lags=12)
+    plt.savefig("C:/Users/c8451269/Desktop/SARIMA07.png")
+
+    plt.clf()
+    pacf_plot=plot_pacf(bxc, lags=12)
+    plt.savefig("C:/Users/c8451269/Desktop/SARIMA08.png")
+    
+    
+    
+    newZt=zt
+    newZt= (np.power(newZt, bestLambda) - 1)/bestLambda
+
+    modelChoices = np.array([(p, q, P, Q) for p in range(3) for q in range(3) for P in range(3) for Q in range(3)])
+    print(modelChoices.shape)
+    print(modelChoices[:10, :])
+    AIC=modelChoices
+    CalibrationPeriod=range(int(0.8 * zt.shape[0]))
+
+
 
 if __name__ == "__main__":
     main()
