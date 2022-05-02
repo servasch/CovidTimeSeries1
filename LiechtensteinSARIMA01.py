@@ -67,6 +67,14 @@ def best_sarima_model(train_data,p,q,P,Q,d=1,D=1,s=12):
     print(current_best_model.summary())
     return current_best_model, models
 
+def shapiro_normality_test(data):
+    p_value = shapiro(data)[1]
+    if p_value >= 0.05:
+        print("Data follows normal distribution: X~N"+ str((np.round(np.mean(data),3), np.round(np.std(data),3))))
+        print("Shapiro test p_value={}".format(np.round(p_value,3)))
+    else:
+        print("Data failed shapiro normality test with p_value={}".format(np.round(p_value,3)))
+
 def main() -> None:
     # Reading and transforming the file
     print("hello1")
