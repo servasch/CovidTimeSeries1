@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
 #from statsmodels.tsa.stattools import adfuller
-#from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
-#from sklearn.metrics import mean_squared_error
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 #from math import sqrt
 import warnings
 warnings.filterwarnings('ignore')
@@ -28,6 +29,43 @@ def difference(dataset, interval=12):
 		diff.append(value)
 	return diff
 
+
+# SARIMA Function
+def best_sarima_model(train_data,p,q,P,Q,d=1,D=1,s=12):
+    best_model_aic = np.Inf
+    best_model_bic = np.Inf
+    best_model_hqic = np.Inf
+    best_model_order = (0,0,0)
+    models = []
+    for p_ in p:
+        for q_ in q:
+            for P_ in P:
+                for Q_ in Q:
+                    try:
+                        no_of_lower_metrics = 0
+                        model = SARIMAX(endog=train_data,order=(p_,d,q_), seasonal_order=(P_,D,Q_,s),
+                                        enforce_invertibility=False).fit()
+                        models.append(model)
+                        if model.aic <= best_model_aic: no_of_lower_metrics+=1
+                        if model.bic <= best_model_bic: no_of_lower_metrics+=1
+                        if model.hqic <= best_model_hqic:no_of_lower_metrics+=1
+                        if no_of_lower_metrics >= 2:
+                            best_model_aic = np.round(model.aic,0)
+                            best_model_bic = np.round(model.bic,0)
+                            best_model_hqic = np.round(model.hqic,0)
+                            best_model_order = (p_,d,q_,P_,D,Q_,s)
+                            current_best_model = model
+                            models.append(model)
+                            print("Best model so far: SARIMA" +  str(best_model_order) +
+                                  " AIC:{} BIC:{} HQIC:{}".format(best_model_aic,best_model_bic,best_model_hqic)+
+                                  " resid:{}".format(np.round(np.exp(current_best_model.resid).mean(),3)))
+
+                    except:
+                        pass
+
+    print('\n')
+    print(current_best_model.summary())
+    return current_best_model, models
 
 def main() -> None:
     # Reading and transforming the file
@@ -87,7 +125,7 @@ def main() -> None:
 
 
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-    ax2.plot(X, Y4, color='red', label='wastwwater data')
+    ax2.plot(X, Y4, color='red', label='wastewater data')
     ax2.set_ylabel('SarsCov2 Titer (cpies/ml)', color='red')  # we already handled the x-label with ax1
     ax2.tick_params(axis='y', labelcolor='red')
 
@@ -143,17 +181,6 @@ def main() -> None:
     zt = np.array(zt) #convert list to array
     print('zt is', zt)
 
-    '''diff = list()
-    interval=12
-    for i in range(interval, len(zt)):
-        value = zt[i] - zt[i - interval]
-        diff.append(value)
-    print('amount of value is', diff)
-    #zt=diff'''
-
-
-
-
     # normality tests and plots
     fig, ax3=plt.subplots()
 
@@ -205,19 +232,14 @@ def main() -> None:
     plt.clf()
     pacf_plot=plot_pacf(bxc, lags=12)
     plt.savefig("C:/Users/c8451269/Desktop/SARIMA08.png")
-    
-    
-    
+
+
+    # some renewing the data is left here
+
     newZt=zt
     newZt= (np.power(newZt, bestLambda) - 1)/bestLambda
 
-    modelChoices = np.array([(p, q, P, Q) for p in range(3) for q in range(3) for P in range(3) for Q in range(3)])
-    print(modelChoices.shape)
-    print(modelChoices[:10, :])
-    AIC=modelChoices
-    CalibrationPeriod=range(int(0.8 * zt.shape[0]))
 
-
-
+    best_model, models = best_sarima_model(train_data=newZt, p=range(3), q=range(3), P=range(3), Q=range(3))
 if __name__ == "__main__":
     main()
