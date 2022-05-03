@@ -67,6 +67,7 @@ def best_sarima_model(train_data,p,q,P,Q,d=1,D=1,s=12):
     print(current_best_model.summary())
     return current_best_model, models
 
+#Shapiro test
 def shapiro_normality_test(data):
     p_value = shapiro(data)[1]
     if p_value >= 0.05:
@@ -74,6 +75,16 @@ def shapiro_normality_test(data):
         print("Shapiro test p_value={}".format(np.round(p_value,3)))
     else:
         print("Data failed shapiro normality test with p_value={}".format(np.round(p_value,3)))
+
+
+# MAPE Error
+def mean_abs_pct_error(actual_values, forecast_values):
+    err=0
+    for i in range(len(forecast_values)):
+        err += np.abs(actual_values[i] - forecast_values[i])/actual_values[i]
+    return err * 100/len(forecast_values)
+
+
 
 def main() -> None:
     # Reading and transforming the file
@@ -228,7 +239,7 @@ def main() -> None:
     plt.savefig("C:/Users/c8451269/Desktop/SARIMA05.png")
 
     plt.clf()
-    print(bxc[7])
+    print(bxc)
     sm.qqplot(bxc, line ='r')
     #plot the distribution of the transformed data values
     plt.savefig("C:/Users/c8451269/Desktop/SARIMA06.png")
@@ -242,12 +253,39 @@ def main() -> None:
     plt.savefig("C:/Users/c8451269/Desktop/SARIMA08.png")
 
 
+
     # some renewing the data is left here
 
-    newZt=zt
-    newZt= (np.power(newZt, bestLambda) - 1)/bestLambda
+#   first strategy
+    zt1=bxc
+
+#    modelChoices = np.array([(p, q, P, Q) for p in range(3) for q in range(3) for P in range(3) for Q in range(3)])
+
+    calibrationPeriod=zt1[0:int(0.8 * zt1.shape[0])]
+    validationPeriod=zt1[int(0.8 * zt1.shape[0]):]
+    print('the lengths of zt1, calibrationPeriod and validationPeriod are', len(zt1), ',', len(calibrationPeriod), 'and', len(validationPeriod), 'respectively')
+
+    best_model, models = best_sarima_model(train_data=calibrationPeriod, p=range(3), q=range(3), P=range(3), Q=range(3))
+#    best_model.plot_diagnostics(figsize=(15,12));
+    plt.clf()
+    plt.scatter(x=calibrationPeriod[1:], y=best_model.resid[1:]);
+    plt.title('Residuals plot')
+    plt.xlabel('Log transformed data')
+    plt.ylabel('Residuals')
+    plt.savefig("C:/Users/c8451269/Desktop/SARIMA09.png")
+
+#    shapiro_normality_test(best_model.resid[1:].drop(index=pd.datetime(2020, 1, 24)))
+
+    plt.clf()
+    plot_acf(best_model.resid[1:], lags=12);
+    plt.savefig("C:/Users/c8451269/Desktop/SARIMA10.png")
+
+    print('shape of calibrationPeriod is', calibrationPeriod.shape[0])
+    forecast = best_model.predict(start=calibrationPeriod.shape[0], end=calibrationPeriod.shape[0]+len(validationPeriod)-1, dynamic=True, typ='levels')
+    print('the forecast is', forecast)
+    print("MAPE:{}%".format(np.round(mean_abs_pct_error(validationPeriod, forecast), 2)))
+    print("MAE:{}".format(np.round(mean_absolute_error(validationPeriod, forecast), 2)))
 
 
-    best_model, models = best_sarima_model(train_data=newZt, p=range(3), q=range(3), P=range(3), Q=range(3))
 if __name__ == "__main__":
     main()
